@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FBI System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: all 0.5s ease;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .card {
+            background-color: #34495e;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+        .btn-light {
+            background-color: #3498db;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            color: #ecf0f1;
+            transition: all 0.3s ease;
+        }
+        .btn-light:hover {
+            background-color: #2980b9;
+            color: #ecf0f1;
+        }
+        #dashboardContent {
+            margin-top: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        #dashboardContent.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">&#128374; FBI System &#128374;</h1>
+        <div class="card text-white text-center p-4">
+            <div class="card-body">
+                <form id="loginForm">
+                    <h3 class="mb-4">&#128372;&#128372;&#128372;</h3>
+                    <h5 class="card-title">Ingrese sus credenciales</h5>
+                    <div class="form-group">
+                        <label for="emailInput">Email:</label>
+                        <input type="email" id="emailInput" name="email" class="form-control" placeholder="Ingrese su email" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordInput">Password:</label>
+                        <input type="password" id="passwordInput" name="password" class="form-control" placeholder="Ingrese su contraseña" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-light mt-3">Ingresar &#128373;</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, password: password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Login fallido');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Limpiar los campos de entrada
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
+
+                if (data.mensaje === "Autenticación exitosa") {
+                    // Guardar el token en SessionStorage con expiración de 2 minutos
+                    sessionStorage.setItem('token', data.token);
+                    setTimeout(() => sessionStorage.removeItem('token'), 2 * 60 * 1000);
+
+                    // Redirigir a la página restringida
+                    window.location.href = '/restricted-page';
+                } else {
+                    alert('Login fallido: ' + data.mensaje);
+                }
+            })
+            .catch(error => {
+                // Limpiar los campos de entrada en caso de error
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
+                alert('Error: ' + error.message);  // Mostrar un alert cuando el login falle
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta Restringida</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenido</h1>
+        <p id="userEmail"></p>
+    </div>
+
+    <script>
+        // Obtener el token de SessionStorage
+        const token = sessionStorage.getItem('token');
+        if (!token) {
+            alert('Token no encontrado, por favor inicie sesión de nuevo.');
+            window.location.href = '/'; // Redirigir a la página de inicio de sesión
+        } else {
+            fetch('/restricted', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        throw new Error(error.mensaje);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('userEmail').innerText = `Email: ${data.mensaje}`;
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                window.location.href = '/'; // Redirigir a la página de inicio de sesión
+            });
+        }
+    </script>
+</body>
+</html>
